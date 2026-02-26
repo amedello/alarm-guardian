@@ -1,0 +1,8 @@
+{
+  "name": "Alarm Guardian",
+  "description": "Multi-zone alarm correlation for Home Assistant with Tuya panels, Frigate NVR, Telegram and VoIP",
+  "render_readme": true,
+  "homeassistant": "2024.1.0",
+  "domains": ["alarm_guardian"],
+  "iot_class": "local_polling"
+}
