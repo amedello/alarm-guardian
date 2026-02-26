@@ -6,7 +6,7 @@ on:
       - "v*"
       - "V*"
   workflow_dispatch:
-     inputs:
+    inputs:
       tag:
         description: "Tag to release (e.g. V0.9.0)"
         required: true
@@ -19,20 +19,36 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Get version from tag
+      - name: Get version
         id: version
-        run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-
-      - name: Extract changelog for this version
-        id: changelog
         run: |
-          VERSION=${{ steps.version.outputs.version }}
-          # Estrae il blocco del changelog per questa versione
-          awk "/^## \[$VERSION\]/{found=1; next} /^## \[/{if(found) exit} found{print}" CHANGELOG.md > release_notes.txt
-          echo "Release notes:"
-          cat release_notes.txt
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="${{ github.event.inputs.tag }}"
+          else
+            TAG="${GITHUB_REF#refs/tags/}"
+          fi
+          VERSION="${TAG#v}"
+          VERSION="${VERSION#V}"
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "Releasing version: ${VERSION}"
 
-      - name: Create release zip
+      - name: Extract changelog
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          python3 - <<'PYEOF'
+          import re, os
+          version = os.environ.get("VERSION", "")
+          changelog = open("CHANGELOG.md").read()
+          pattern = rf"## \[{re.escape(version)}\].*?\n(.*?)(?=\n## \[|\Z)"
+          match = re.search(pattern, changelog, re.DOTALL)
+          notes = match.group(1).strip() if match else f"Release {version}"
+          open("release_notes.txt", "w").write(notes)
+          print(notes)
+          PYEOF
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+
+      - name: Create zip
         run: |
           zip -r alarm_guardian.zip custom_components/alarm_guardian/ \
             --exclude "*/__pycache__/*" \
@@ -41,8 +57,9 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.event.inputs.tag || github.ref_name }}
           name: "Alarm Guardian v${{ steps.version.outputs.version }}"
           body_path: release_notes.txt
           files: alarm_guardian.zip
           draft: false
-          prerelease: false
+          prerelease: true
