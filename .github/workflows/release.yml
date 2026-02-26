@@ -1,0 +1,42 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get version from tag
+        id: version
+        run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Extract changelog for this version
+        id: changelog
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          # Estrae il blocco del changelog per questa versione
+          awk "/^## \[$VERSION\]/{found=1; next} /^## \[/{if(found) exit} found{print}" CHANGELOG.md > release_notes.txt
+          echo "Release notes:"
+          cat release_notes.txt
+
+      - name: Create release zip
+        run: |
+          zip -r alarm_guardian.zip custom_components/alarm_guardian/ \
+            --exclude "*/__pycache__/*" \
+            --exclude "*.pyc"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "Alarm Guardian v${{ steps.version.outputs.version }}"
+          body_path: release_notes.txt
+          files: alarm_guardian.zip
+          draft: false
+          prerelease: false
