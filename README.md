@@ -129,6 +129,12 @@ Tested with:
 
 ---
 
+## Documentation
+
+For full usage instructions see the **[User Manual](MANUAL.md)**.
+
+---
+
 ## Contributing
 
 Pull requests welcome. Please open an issue first to discuss significant changes.

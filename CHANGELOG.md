@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.0] - 2026-02-26
+
+### Added
+- Per-sensor armed mode selection: interior sensors and Frigate cameras can now be configured independently as active in both modes (home + away), away only, or home only
+- New config/options flow step `zone_devices_away` for sensors active only when away
+- `zone_interior_sensors_both`, `zone_interior_sensors_away`, `zone_interior_sensors_home` zone config keys
+- `zone_frigate_cameras_both`, `zone_frigate_cameras_away`, `zone_frigate_cameras_home` zone config keys
+- `is_interior_active_in_mode()` and `is_camera_active_in_mode()` methods on ZoneCorrelation
+
+### Changed
+- `zone_devices` setup step now covers sensors active in both modes; a new `zone_devices_away` step follows for away-only sensors
+- Perimeter sensors remain always active when the zone is armed (no per-mode selection needed)
+- Removed hardcoded "perimeter sensors always active in armed_home" override from `__init__.py` — mode filtering is now fully handled by ZoneEngine
+
+### Migration
+- Existing zones with `zone_interior_sensors` and `zone_frigate_cameras` are automatically treated as active in both modes (backwards compatible, no data loss)
+
 ## [2.4.0] - 2026-02-25
 
 ### Added
