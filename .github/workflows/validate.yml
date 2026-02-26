@@ -1,0 +1,45 @@
+name: Validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Check Python syntax
+        run: |
+          find custom_components/alarm_guardian -name "*.py" | while read f; do
+            python3 -m py_compile "$f" && echo "OK: $f" || exit 1
+          done
+
+      - name: Check JSON syntax
+        run: |
+          find custom_components/alarm_guardian -name "*.json" | while read f; do
+            python3 -c "import json; json.load(open('$f'))" && echo "OK: $f" || exit 1
+          done
+
+      - name: Check all translation languages present
+        run: |
+          for lang in it en de fr es; do
+            test -f "custom_components/alarm_guardian/translations/${lang}.json" \
+              && echo "OK: ${lang}.json" \
+              || (echo "MISSING: ${lang}.json" && exit 1)
+          done
+
+      - name: Check manifest version matches latest changelog entry
+        run: |
+          MANIFEST_VER=$(python3 -c "import json; print(json.load(open('custom_components/alarm_guardian/manifest.json'))['version'])")
+          CHANGELOG_VER=$(grep -m1 '## \[' CHANGELOG.md | sed 's/.*\[\(.*\)\].*/\1/')
+          echo "Manifest: $MANIFEST_VER | Changelog: $CHANGELOG_VER"
+          [ "$MANIFEST_VER" = "$CHANGELOG_VER" ] || (echo "Version mismatch!" && exit 1)
