@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.5.0] - 2026-02-26
+## [0.9.0] - 2026-02-26
 
 ### Added
 - Per-sensor armed mode selection: interior sensors and Frigate cameras can now be configured independently as active in both modes (home + away), away only, or home only
@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Migration
 - Existing zones with `zone_interior_sensors` and `zone_frigate_cameras` are automatically treated as active in both modes (backwards compatible, no data loss)
 
-## [2.4.0] - 2026-02-25
+## [0.2.4.0 - internal] - 2026-02-25
 
 ### Added
 - Multi-zone architecture with independent confirmation profiles per zone
@@ -51,7 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [2.3.0] - 2026-02-24
+## [0.2.3.0 - internal] - 2026-02-24
 
 ### Added
 - Configurable VoIP provider: shell command, notify service, REST API, or disabled
@@ -69,7 +69,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [2.0.0] - 2026-02-20
+## [0.2.0.0 - internal] - 2026-02-20
 
 ### Added
 - Initial public release
