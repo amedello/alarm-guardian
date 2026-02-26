@@ -5,6 +5,11 @@ on:
     tags:
       - "v*"
       - "V*"
+  workflow_dispatch:
+     inputs:
+      tag:
+        description: "Tag to release (e.g. V0.9.0)"
+        required: true
 
 jobs:
   release:
