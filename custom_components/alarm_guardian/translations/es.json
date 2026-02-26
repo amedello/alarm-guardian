@@ -1,0 +1,261 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Panel de alarma",
+        "description": "Selecciona la entidad alarm_control_panel de tu panel de alarma (Tuya, Bosch, alarmo, mqtt-alarm-panel, etc.)",
+        "data": {
+          "tuya_alarm_entity": "Panel de alarma"
+        }
+      },
+      "telegram": {
+        "title": "Notificaciones Telegram",
+        "description": "Configura el bot de Telegram para las notificaciones de alarma",
+        "data": {
+          "telegram_config_entry_id": "Bot de Telegram",
+          "telegram_target_chat_id": "ID del chat de destino",
+          "telegram_thread_id": "ID del hilo (opcional)"
+        }
+      },
+      "voip": {
+        "title": "Llamadas VoIP",
+        "description": "Configura números y proveedor para llamadas de emergencia",
+        "data": {
+          "voip_primary_number": "Número principal",
+          "voip_secondary_number": "Número secundario (opcional)",
+          "voip_provider_type": "Proveedor VoIP",
+          "shell_command_voip": "Comando shell"
+        }
+      },
+      "voip_notify": {
+        "title": "VoIP mediante Notify",
+        "description": "Selecciona el servicio notify para las llamadas",
+        "data": {
+          "voip_notify_service": "Servicio notify"
+        }
+      },
+      "voip_rest": {
+        "title": "VoIP mediante REST API",
+        "description": "Configura el endpoint HTTP para las llamadas",
+        "data": {
+          "voip_rest_url": "URL del endpoint",
+          "voip_rest_method": "Método HTTP",
+          "voip_rest_headers": "Cabeceras (JSON)",
+          "voip_rest_body": "Cuerpo (JSON)"
+        }
+      },
+      "timing": {
+        "title": "Parámetros temporales",
+        "description": "Configura los retardos y ventanas temporales del sistema",
+        "data": {
+          "entry_delay": "Retardo de entrada (s)",
+          "exit_delay": "Retardo de salida (s)",
+          "correlation_window": "Ventana de correlación (s)",
+          "voip_call_delay": "Espera entre llamadas VoIP (s)",
+          "battery_threshold": "Umbral batería baja (%)",
+          "jamming_min_devices": "Jamming: dispositivos mínimos",
+          "jamming_min_percent": "Jamming: porcentaje mínimo (%)"
+        }
+      },
+      "frigate": {
+        "title": "Frigate NVR",
+        "description": "Configura la integración con Frigate para detección de personas",
+        "data": {
+          "frigate_host": "Host de Frigate",
+          "frigate_port": "Puerto de Frigate",
+          "frigate_motion_switches": "Interruptores detección movimiento",
+          "frigate_detect_switches": "Interruptores detección objetos"
+        }
+      },
+      "siren": {
+        "title": "Sirena externa",
+        "description": "Selecciona una sirena externa para activar en caso de alarma (opcional)",
+        "data": {
+          "external_siren_entity": "Entidad sirena"
+        }
+      },
+      "zone_name": {
+        "title": "Nueva zona — Zona {zone_num}",
+        "description": "Asigna un nombre a la zona y selecciona las habitaciones de Home Assistant asociadas",
+        "data": {
+          "zone_name": "Nombre de zona",
+          "zone_ha_areas": "Habitaciones asociadas"
+        }
+      },
+      "zone_devices": {
+        "title": "Zona {zone_name} — Sensores",
+        "description": "Sensores detectados automáticamente desde las habitaciones seleccionadas. Corrige la clasificación si es necesario.",
+        "data": {
+          "perimeter_sensors": "Sensores perimetrales (puertas/ventanas)",
+          "interior_sensors": "Sensores interiores (PIR, radar)",
+          "frigate_cameras": "Cámaras Frigate"
+        }
+      },
+      "zone_profile": {
+        "title": "Zona {zone_name} — Perfil de confirmación",
+        "description": "Elige las reglas que deben cumplirse para confirmar una alarma en esta zona",
+        "data": {
+          "zone_profile": "Perfil de confirmación",
+          "zone_armed_modes": "Modos armados"
+        }
+      },
+      "zone_add_another": {
+        "title": "Zona guardada",
+        "description": "Zonas configuradas: {zones_configured}\n\n¿Deseas agregar otra zona?",
+        "data": {
+          "add_another": "Agregar otra zona"
+        }
+      }
+    },
+    "error": {
+      "no_alarm_panel": "No se encontró ningún panel de alarma. Por favor configura primero un panel Tuya.",
+      "no_zones": "Debes configurar al menos una zona."
+    },
+    "abort": {
+      "no_alarm_panel": "No se encontró ningún panel de alarma compatible",
+      "already_configured": "Integración ya configurada"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Alarm Guardian — Opciones",
+        "description": "Selecciona la sección a editar",
+        "data": {
+          "section": "Sección"
+        }
+      },
+      "opt_notifications": {
+        "title": "Notificaciones Telegram",
+        "data": {
+          "telegram_config_entry_id": "Bot de Telegram",
+          "telegram_target_chat_id": "ID del chat de destino",
+          "telegram_thread_id": "ID del hilo (opcional)"
+        }
+      },
+      "opt_voip": {
+        "title": "Llamadas VoIP",
+        "data": {
+          "voip_primary_number": "Número principal",
+          "voip_secondary_number": "Número secundario (opcional)",
+          "voip_provider_type": "Proveedor VoIP",
+          "shell_command_voip": "Comando shell"
+        }
+      },
+      "opt_timing": {
+        "title": "Parámetros temporales",
+        "data": {
+          "entry_delay": "Retardo de entrada (s)",
+          "exit_delay": "Retardo de salida (s)",
+          "correlation_window": "Ventana de correlación (s)",
+          "voip_call_delay": "Espera entre llamadas VoIP (s)",
+          "battery_threshold": "Umbral batería baja (%)"
+        }
+      },
+      "opt_frigate": {
+        "title": "Frigate NVR",
+        "data": {
+          "frigate_host": "Host de Frigate",
+          "frigate_port": "Puerto de Frigate",
+          "frigate_motion_switches": "Interruptores detección movimiento",
+          "frigate_detect_switches": "Interruptores detección objetos"
+        }
+      },
+      "opt_siren": {
+        "title": "Sirena externa",
+        "data": {
+          "external_siren_entity": "Entidad sirena"
+        }
+      },
+      "opt_zones": {
+        "title": "Gestión de zonas",
+        "description": "Agregar, editar o eliminar zonas",
+        "data": {
+          "zone_action": "Acción"
+        }
+      },
+      "zone_name": {
+        "title": "Zona — Nombre y habitaciones",
+        "data": {
+          "zone_name": "Nombre de zona",
+          "zone_ha_areas": "Habitaciones asociadas"
+        }
+      },
+      "zone_devices": {
+        "title": "Zona {zone_name} — Sensores",
+        "data": {
+          "perimeter_sensors": "Sensores perimetrales (puertas/ventanas)",
+          "interior_sensors": "Sensores interiores (PIR, radar)",
+          "frigate_cameras": "Cámaras Frigate"
+        }
+      },
+      "zone_profile": {
+        "title": "Zona {zone_name} — Perfil",
+        "data": {
+          "zone_profile": "Perfil de confirmación",
+          "zone_armed_modes": "Modos armados"
+        }
+      },
+      "opt_voip_notify": {
+        "title": "VoIP – Notify",
+        "data": {
+          "voip_notify_service": "Servicio notify"
+        }
+      },
+      "opt_voip_rest": {
+        "title": "VoIP – REST API",
+        "data": {
+          "voip_rest_url": "URL del endpoint",
+          "voip_rest_method": "Método HTTP",
+          "voip_rest_headers": "Cabeceras (JSON)",
+          "voip_rest_body": "Cuerpo (JSON)"
+        }
+      }
+    }
+  },
+  "selector": {
+    "voip_provider_type": {
+      "options": {
+        "shell_command": "Comando shell (Asterisk/AGI)",
+        "notify_service": "Servicio notify (Twilio/VoIP.ms)",
+        "rest_api": "REST API",
+        "disabled": "Desactivado"
+      }
+    },
+    "zone_profile": {
+      "options": {
+        "perimeter_only": "Solo perímetro — 2 contactos para confirmar",
+        "perimeter_plus": "Perímetro + volumétrico — contacto obligatorio",
+        "rich": "Rico con cámaras — contacto o person de Frigate",
+        "volumetric_diverse": "Solo volumétricos diversos — radar + PIR"
+      }
+    },
+    "zone_armed_modes": {
+      "options": {
+        "armed_away": "Fuera de casa (armed_away)",
+        "armed_home": "En casa (armed_home)"
+      }
+    },
+    "section": {
+      "options": {
+        "notifications": "Notificaciones Telegram",
+        "voip": "Llamadas VoIP",
+        "timing": "Temporización",
+        "frigate": "Frigate NVR",
+        "siren": "Sirena externa",
+        "zones": "Zonas"
+      }
+    },
+    "zone_action": {
+      "options": {
+        "add": "Agregar nueva zona"
+      }
+    },
+    "add_another": {
+      "options": {
+        "true": "Sí, agregar otra zona",
+        "false": "No, he terminado"
+      }
+    }
+  }
+}

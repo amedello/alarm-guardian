@@ -1,0 +1,97 @@
+test_escalation:
+  name: Test Escalation Sequence
+  description: Test complete escalation without arming alarm
+  fields:
+    test_frigate:
+      name: Test Frigate
+      description: Simulate person detection event
+      required: false
+      default: false
+      selector:
+        boolean:
+    test_database:
+      name: Test Database
+      description: Log test event to database
+      required: false
+      default: true
+      selector:
+        boolean:
+
+export_events:
+  name: Export Events
+  description: Export alarm events to file
+  fields:
+    days:
+      name: Days
+      description: Number of days to export
+      required: false
+      default: 7
+      selector:
+        number:
+          min: 1
+          max: 365
+          unit_of_measurement: days
+    format:
+      name: Format
+      description: Export file format
+      required: false
+      default: csv
+      selector:
+        select:
+          options:
+            - csv
+            - json
+    path:
+      name: Path
+      description: Output file path (relative to /config)
+      required: false
+      default: "alarm_guardian_export.csv"
+      selector:
+        text:
+
+force_arm:
+  name: Force Arm
+  description: Arm alarm even with sensor faults
+  fields:
+    ignore_offline:
+      name: Ignore Offline Sensors
+      description: List of sensor entity IDs to ignore if offline
+      required: false
+      selector:
+        entity:
+          multiple: true
+          filter:
+            domain: binary_sensor
+
+silence_alarm:
+  name: Silence Alarm
+  description: Silence siren while keeping alarm triggered state
+
+manual_trigger:
+  name: Manual Trigger
+  description: Manually trigger alarm (panic button)
+  fields:
+    reason:
+      name: Reason
+      description: Reason for manual trigger
+      required: false
+      default: "Manual panic button"
+      selector:
+        text:
+
+reset_statistics:
+  name: Reset Statistics
+  description: Reset ML statistics and learning data
+  
+clear_fault:
+  name: Azzera Fault
+  description: Azzera lo stato di fault del sistema e riprendi operazione
+
+force_battery_check:
+  name: Forza Controllo Batterie
+  description: Forza un controllo immediato delle batterie di tutti i sensori e mostra i risultati
+
+test_battery_notification:
+  name: Test Notifica Batteria
+  description: Invia una notifica di test batteria bassa tramite Telegram
+
