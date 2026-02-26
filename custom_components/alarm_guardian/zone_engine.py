@@ -25,6 +25,12 @@ from .const import (
     ZONE_PERIMETER_SENSORS,
     ZONE_INTERIOR_SENSORS,
     ZONE_FRIGATE_CAMERAS,
+    ZONE_INTERIOR_SENSORS_BOTH,
+    ZONE_INTERIOR_SENSORS_AWAY,
+    ZONE_INTERIOR_SENSORS_HOME,
+    ZONE_FRIGATE_CAMERAS_BOTH,
+    ZONE_FRIGATE_CAMERAS_AWAY,
+    ZONE_FRIGATE_CAMERAS_HOME,
     ZONE_PROFILE,
     ZONE_ARMED_MODES,
     ZONE_PROFILE_PERIMETER_ONLY,
@@ -96,8 +102,42 @@ class ZoneCorrelation:
         self.zone_name: str = zone_config[ZONE_NAME]
         self.profile: str = zone_config.get(ZONE_PROFILE, ZONE_PROFILE_PERIMETER_PLUS)
         self.perimeter_sensors: set[str] = set(zone_config.get(ZONE_PERIMETER_SENSORS, []))
-        self.interior_sensors: set[str] = set(zone_config.get(ZONE_INTERIOR_SENSORS, []))
-        self.frigate_cameras: set[str] = set(zone_config.get(ZONE_FRIGATE_CAMERAS, []))
+
+        # Retrocompatibilità: se esistono le chiavi legacy le usiamo come _both
+        _legacy_interior = zone_config.get(ZONE_INTERIOR_SENSORS, [])
+        _legacy_cameras  = zone_config.get(ZONE_FRIGATE_CAMERAS, [])
+
+        self.interior_sensors_both: set[str] = set(
+            zone_config.get(ZONE_INTERIOR_SENSORS_BOTH, _legacy_interior)
+        )
+        self.interior_sensors_away: set[str] = set(
+            zone_config.get(ZONE_INTERIOR_SENSORS_AWAY, [])
+        )
+        self.interior_sensors_home: set[str] = set(
+            zone_config.get(ZONE_INTERIOR_SENSORS_HOME, [])
+        )
+
+        self.frigate_cameras_both: set[str] = set(
+            zone_config.get(ZONE_FRIGATE_CAMERAS_BOTH, _legacy_cameras)
+        )
+        self.frigate_cameras_away: set[str] = set(
+            zone_config.get(ZONE_FRIGATE_CAMERAS_AWAY, [])
+        )
+        self.frigate_cameras_home: set[str] = set(
+            zone_config.get(ZONE_FRIGATE_CAMERAS_HOME, [])
+        )
+
+        # Proprietà aggregate — usate esternamente (battery, FP300 patch, ecc.)
+        self.interior_sensors: set[str] = (
+            self.interior_sensors_both
+            | self.interior_sensors_away
+            | self.interior_sensors_home
+        )
+        self.frigate_cameras: set[str] = (
+            self.frigate_cameras_both
+            | self.frigate_cameras_away
+            | self.frigate_cameras_home
+        )
         self.armed_modes: list[str] = zone_config.get(ZONE_ARMED_MODES, ["armed_away"])
         self.correlation_window = correlation_window
         self._threshold = ZONE_PROFILE_THRESHOLDS[self.profile]
@@ -132,6 +172,26 @@ class ZoneCorrelation:
 
     def owns_camera(self, camera_name: str) -> bool:
         return camera_name in self.frigate_cameras
+
+    def is_interior_active_in_mode(self, entity_id: str, alarm_mode: str) -> bool:
+        """Verifica se un sensore interno è attivo per la modalità corrente."""
+        if entity_id in self.interior_sensors_both:
+            return True
+        if alarm_mode == "armed_away" and entity_id in self.interior_sensors_away:
+            return True
+        if alarm_mode == "armed_home" and entity_id in self.interior_sensors_home:
+            return True
+        return False
+
+    def is_camera_active_in_mode(self, camera_name: str, alarm_mode: str) -> bool:
+        """Verifica se una telecamera è attiva per la modalità corrente."""
+        if camera_name in self.frigate_cameras_both:
+            return True
+        if alarm_mode == "armed_away" and camera_name in self.frigate_cameras_away:
+            return True
+        if alarm_mode == "armed_home" and camera_name in self.frigate_cameras_home:
+            return True
+        return False
 
     def is_active_in_mode(self, alarm_mode: str) -> bool:
         return alarm_mode in self.armed_modes
@@ -404,6 +464,15 @@ class ZoneEngine:
             )
             return False
 
+        # I perimetrali sono sempre attivi. I sensori interni vengono filtrati per modalità.
+        is_perimeter = entity_id in zone.perimeter_sensors
+        if not is_perimeter and not zone.is_interior_active_in_mode(entity_id, alarm_mode):
+            _LOGGER.debug(
+                "Sensore interno '%s' non attivo in modalità %s (zona '%s')",
+                entity_id, alarm_mode, zone.zone_name,
+            )
+            return False
+
         sensor_type, base_score = self.sensor_type_for(entity_id, zone)
         score = adjusted_score if adjusted_score is not None else base_score
 
@@ -470,6 +539,13 @@ class ZoneEngine:
             return False
 
         if not zone.is_active_in_mode(alarm_mode):
+            return False
+
+        if not zone.is_camera_active_in_mode(camera_name, alarm_mode):
+            _LOGGER.debug(
+                "Telecamera '%s' non attiva in modalità %s (zona '%s')",
+                camera_name, alarm_mode, zone.zone_name,
+            )
             return False
 
         entity_name = f"Camera {camera_name} (person {int(confidence * 100)}%)"
@@ -550,8 +626,8 @@ def build_zones_from_legacy(entry_data: dict[str, Any]) -> list[dict[str, Any]]:
         ZONE_NAME: "Casa",
         ZONE_HA_AREAS: [],
         ZONE_PERIMETER_SENSORS: perimeter,
-        ZONE_INTERIOR_SENSORS: interior,
-        ZONE_FRIGATE_CAMERAS: cameras,
+        ZONE_INTERIOR_SENSORS_BOTH: interior,
+        ZONE_FRIGATE_CAMERAS_BOTH: cameras,
         ZONE_PROFILE: profile,
         ZONE_ARMED_MODES: ["armed_away", "armed_home"],
     }

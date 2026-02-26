@@ -83,12 +83,12 @@
         }
       },
       "zone_devices": {
-        "title": "Zona {zone_name} — Sensores",
-        "description": "Sensores detectados automáticamente desde las habitaciones seleccionadas. Corrige la clasificación si es necesario.",
+        "title": "Sensores zona (home + away)",
+        "description": "Sensores activos en ambos modos: {zone_name}",
         "data": {
-          "perimeter_sensors": "Sensores perimetrales (puertas/ventanas)",
-          "interior_sensors": "Sensores interiores (PIR, radar)",
-          "frigate_cameras": "Cámaras Frigate"
+          "perimeter_sensors": "Sensores perimetrales (siempre activos)",
+          "interior_sensors_both": "Sensores interiores (home + away)",
+          "frigate_cameras_both": "Cámaras Frigate (home + away)"
         }
       },
       "zone_profile": {
@@ -104,6 +104,14 @@
         "description": "Zonas configuradas: {zones_configured}\n\n¿Deseas agregar otra zona?",
         "data": {
           "add_another": "Agregar otra zona"
+        }
+      },
+      "zone_devices_away": {
+        "title": "Sensores solo fuera de casa",
+        "description": "Sensores activos SOLO en away: {zone_name}",
+        "data": {
+          "interior_sensors_away": "Sensores interiores (solo away)",
+          "frigate_cameras_away": "Cámaras Frigate (solo away)"
         }
       }
     },
@@ -182,11 +190,12 @@
         }
       },
       "zone_devices": {
-        "title": "Zona {zone_name} — Sensores",
+        "title": "Sensores zona (home + away)",
+        "description": "Sensores activos en ambos modos: {zone_name}",
         "data": {
-          "perimeter_sensors": "Sensores perimetrales (puertas/ventanas)",
-          "interior_sensors": "Sensores interiores (PIR, radar)",
-          "frigate_cameras": "Cámaras Frigate"
+          "perimeter_sensors": "Sensores perimetrales (siempre activos)",
+          "interior_sensors_both": "Sensores interiores (home + away)",
+          "frigate_cameras_both": "Cámaras Frigate (home + away)"
         }
       },
       "zone_profile": {
@@ -209,6 +218,14 @@
           "voip_rest_method": "Método HTTP",
           "voip_rest_headers": "Cabeceras (JSON)",
           "voip_rest_body": "Cuerpo (JSON)"
+        }
+      },
+      "zone_devices_away": {
+        "title": "Sensores solo fuera de casa",
+        "description": "Sensores activos SOLO en away: {zone_name}",
+        "data": {
+          "interior_sensors_away": "Sensores interiores (solo away)",
+          "frigate_cameras_away": "Cámaras Frigate (solo away)"
         }
       }
     }

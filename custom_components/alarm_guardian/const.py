@@ -38,9 +38,20 @@ CONF_ZONES: Final = "zones"
 ZONE_ID: Final = "zone_id"
 ZONE_NAME: Final = "zone_name"
 ZONE_HA_AREAS: Final = "zone_ha_areas"
-ZONE_PERIMETER_SENSORS: Final = "zone_perimeter_sensors"
-ZONE_INTERIOR_SENSORS: Final = "zone_interior_sensors"
-ZONE_FRIGATE_CAMERAS: Final = "zone_frigate_cameras"
+ZONE_PERIMETER_SENSORS: Final = "zone_perimeter_sensors"         # sempre attivi (home + away)
+ZONE_INTERIOR_SENSORS: Final = "zone_interior_sensors"           # legacy → migrato a _both
+ZONE_FRIGATE_CAMERAS: Final = "zone_frigate_cameras"             # legacy → migrato a _both
+
+# Sensori interni per modalità
+ZONE_INTERIOR_SENSORS_BOTH: Final = "zone_interior_sensors_both"
+ZONE_INTERIOR_SENSORS_AWAY: Final = "zone_interior_sensors_away"
+ZONE_INTERIOR_SENSORS_HOME: Final = "zone_interior_sensors_home"
+
+# Telecamere Frigate per modalità
+ZONE_FRIGATE_CAMERAS_BOTH: Final = "zone_frigate_cameras_both"
+ZONE_FRIGATE_CAMERAS_AWAY: Final = "zone_frigate_cameras_away"
+ZONE_FRIGATE_CAMERAS_HOME: Final = "zone_frigate_cameras_home"
+
 ZONE_PROFILE: Final = "zone_profile"
 ZONE_ARMED_MODES: Final = "zone_armed_modes"
 

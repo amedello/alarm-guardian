@@ -47,6 +47,12 @@ from .const import (
     ZONE_PERIMETER_SENSORS,
     ZONE_INTERIOR_SENSORS,
     ZONE_FRIGATE_CAMERAS,
+    ZONE_INTERIOR_SENSORS_BOTH,
+    ZONE_INTERIOR_SENSORS_AWAY,
+    ZONE_INTERIOR_SENSORS_HOME,
+    ZONE_FRIGATE_CAMERAS_BOTH,
+    ZONE_FRIGATE_CAMERAS_AWAY,
+    ZONE_FRIGATE_CAMERAS_HOME,
     ZONE_PROFILE,
     ZONE_ARMED_MODES,
     ZONE_PROFILES,
@@ -498,18 +504,15 @@ class AlarmGuardianConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_zone_devices(
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.ConfigFlowResult:
-        """Z2: Device della zona — classificazione automatica + correzione manuale."""
+        """Z2a: Sensori perimetrali e interni attivi in entrambe le modalità (home + away)."""
         if user_input is not None:
             self._current_zone[ZONE_PERIMETER_SENSORS] = user_input.get("perimeter_sensors", [])
-            self._current_zone[ZONE_INTERIOR_SENSORS] = user_input.get("interior_sensors", [])
-            self._current_zone[ZONE_FRIGATE_CAMERAS] = user_input.get("frigate_cameras", [])
-            return await self.async_step_zone_profile()
+            self._current_zone[ZONE_INTERIOR_SENSORS_BOTH] = user_input.get("interior_sensors_both", [])
+            self._current_zone[ZONE_FRIGATE_CAMERAS_BOTH] = user_input.get("frigate_cameras_both", [])
+            return await self.async_step_zone_devices_away()
 
-        # Auto-classifica dai device nelle aree selezionate
         area_ids = self._current_zone.get(ZONE_HA_AREAS, [])
         auto_perim, auto_int, _ = _classify_sensors_from_areas(self.hass, area_ids)
-
-        # Telecamere da switch già configurati nello step Frigate
         available_cameras = _get_frigate_cameras_from_switches(self.hass, self.data)
         cam_options = [selector.SelectOptionDict(value=c, label=c) for c in available_cameras]
 
@@ -517,10 +520,10 @@ class AlarmGuardianConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             vol.Optional("perimeter_sensors", default=auto_perim): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="binary_sensor", multiple=True)
             ),
-            vol.Optional("interior_sensors", default=auto_int): selector.EntitySelector(
+            vol.Optional("interior_sensors_both", default=[]): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="binary_sensor", multiple=True)
             ),
-            vol.Optional("frigate_cameras", default=[]): selector.SelectSelector(
+            vol.Optional("frigate_cameras_both", default=[]): selector.SelectSelector(
                 selector.SelectSelectorConfig(
                     options=cam_options if cam_options else [],
                     multiple=True,
@@ -531,6 +534,42 @@ class AlarmGuardianConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         })
         return self.async_show_form(
             step_id="zone_devices",
+            data_schema=schema,
+            description_placeholders={"zone_name": self._current_zone.get(ZONE_NAME, "")},
+        )
+
+    async def async_step_zone_devices_away(
+        self, user_input: dict[str, Any] | None = None
+    ) -> config_entries.ConfigFlowResult:
+        """Z2b: Sensori attivi SOLO quando fuori casa (armed_away)."""
+        if user_input is not None:
+            self._current_zone[ZONE_INTERIOR_SENSORS_AWAY] = user_input.get("interior_sensors_away", [])
+            self._current_zone[ZONE_FRIGATE_CAMERAS_AWAY] = user_input.get("frigate_cameras_away", [])
+            return await self.async_step_zone_profile()
+
+        available_cameras = _get_frigate_cameras_from_switches(self.hass, self.data)
+        # Escludi telecamere già scelte come "both"
+        already_both = set(self._current_zone.get(ZONE_FRIGATE_CAMERAS_BOTH, []))
+        cam_options = [
+            selector.SelectOptionDict(value=c, label=c)
+            for c in available_cameras if c not in already_both
+        ]
+
+        schema = vol.Schema({
+            vol.Optional("interior_sensors_away", default=[]): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="binary_sensor", multiple=True)
+            ),
+            vol.Optional("frigate_cameras_away", default=[]): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=cam_options if cam_options else [],
+                    multiple=True,
+                    custom_value=True,
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                )
+            ),
+        })
+        return self.async_show_form(
+            step_id="zone_devices_away",
             data_schema=schema,
             description_placeholders={"zone_name": self._current_zone.get(ZONE_NAME, "")},
         )
@@ -547,10 +586,20 @@ class AlarmGuardianConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             return await self.async_step_zone_add_another()
 
         # Suggerisci profilo automaticamente
+        all_interior = (
+            self._current_zone.get(ZONE_INTERIOR_SENSORS_BOTH, [])
+            + self._current_zone.get(ZONE_INTERIOR_SENSORS_AWAY, [])
+            + self._current_zone.get(ZONE_INTERIOR_SENSORS_HOME, [])
+        )
+        all_cameras = (
+            self._current_zone.get(ZONE_FRIGATE_CAMERAS_BOTH, [])
+            + self._current_zone.get(ZONE_FRIGATE_CAMERAS_AWAY, [])
+            + self._current_zone.get(ZONE_FRIGATE_CAMERAS_HOME, [])
+        )
         suggested = _suggest_profile(
             self._current_zone.get(ZONE_PERIMETER_SENSORS, []),
-            self._current_zone.get(ZONE_INTERIOR_SENSORS, []),
-            self._current_zone.get(ZONE_FRIGATE_CAMERAS, []),
+            all_interior,
+            all_cameras,
         )
 
         schema = vol.Schema({
@@ -873,31 +922,39 @@ class AlarmGuardianOptionsFlow(config_entries.OptionsFlow):
     async def async_step_zone_devices(
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.ConfigFlowResult:
-        """Options: device zona."""
+        """Options Z2a: Sensori attivi in entrambe le modalità (home + away)."""
         if user_input is not None:
             self._current_zone[ZONE_PERIMETER_SENSORS] = user_input.get("perimeter_sensors", [])
-            self._current_zone[ZONE_INTERIOR_SENSORS] = user_input.get("interior_sensors", [])
-            self._current_zone[ZONE_FRIGATE_CAMERAS] = user_input.get("frigate_cameras", [])
-            return await self.async_step_zone_profile()
+            self._current_zone[ZONE_INTERIOR_SENSORS_BOTH] = user_input.get("interior_sensors_both", [])
+            self._current_zone[ZONE_FRIGATE_CAMERAS_BOTH] = user_input.get("frigate_cameras_both", [])
+            return await self.async_step_zone_devices_away()
+
         area_ids = self._current_zone.get(ZONE_HA_AREAS, [])
         auto_p, auto_i, _ = _classify_sensors_from_areas(self.hass, area_ids)
 
-        # Telecamere da switch già configurati
+        # Retrocompatibilità: se la zona era configurata con le chiavi legacy, prepopola _both
+        default_int_both = self._current_zone.get(
+            ZONE_INTERIOR_SENSORS_BOTH,
+            self._current_zone.get(ZONE_INTERIOR_SENSORS, auto_i)
+        )
+
         available_cameras = _get_frigate_cameras_from_switches(
-            self.hass,
-            {**self._entry.data, **self._entry.options}
+            self.hass, {**self._entry.data, **self._entry.options}
         )
         cam_options = [selector.SelectOptionDict(value=c, label=c) for c in available_cameras]
-        current_cams = self._current_zone.get(ZONE_FRIGATE_CAMERAS, [])
+        default_cams_both = self._current_zone.get(
+            ZONE_FRIGATE_CAMERAS_BOTH,
+            self._current_zone.get(ZONE_FRIGATE_CAMERAS, [])
+        )
 
         schema = vol.Schema({
             vol.Optional("perimeter_sensors", default=self._current_zone.get(ZONE_PERIMETER_SENSORS, auto_p)): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="binary_sensor", multiple=True)
             ),
-            vol.Optional("interior_sensors", default=self._current_zone.get(ZONE_INTERIOR_SENSORS, auto_i)): selector.EntitySelector(
+            vol.Optional("interior_sensors_both", default=default_int_both): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="binary_sensor", multiple=True)
             ),
-            vol.Optional("frigate_cameras", default=current_cams): selector.SelectSelector(
+            vol.Optional("frigate_cameras_both", default=default_cams_both): selector.SelectSelector(
                 selector.SelectSelectorConfig(
                     options=cam_options if cam_options else [],
                     multiple=True,
@@ -908,6 +965,43 @@ class AlarmGuardianOptionsFlow(config_entries.OptionsFlow):
         })
         return self.async_show_form(
             step_id="zone_devices",
+            data_schema=schema,
+            description_placeholders={"zone_name": self._current_zone.get(ZONE_NAME, "")},
+        )
+
+    async def async_step_zone_devices_away(
+        self, user_input: dict[str, Any] | None = None
+    ) -> config_entries.ConfigFlowResult:
+        """Options Z2b: Sensori attivi SOLO quando fuori casa (armed_away)."""
+        if user_input is not None:
+            self._current_zone[ZONE_INTERIOR_SENSORS_AWAY] = user_input.get("interior_sensors_away", [])
+            self._current_zone[ZONE_FRIGATE_CAMERAS_AWAY] = user_input.get("frigate_cameras_away", [])
+            return await self.async_step_zone_profile()
+
+        available_cameras = _get_frigate_cameras_from_switches(
+            self.hass, {**self._entry.data, **self._entry.options}
+        )
+        already_both = set(self._current_zone.get(ZONE_FRIGATE_CAMERAS_BOTH, []))
+        cam_options = [
+            selector.SelectOptionDict(value=c, label=c)
+            for c in available_cameras if c not in already_both
+        ]
+
+        schema = vol.Schema({
+            vol.Optional("interior_sensors_away", default=self._current_zone.get(ZONE_INTERIOR_SENSORS_AWAY, [])): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="binary_sensor", multiple=True)
+            ),
+            vol.Optional("frigate_cameras_away", default=self._current_zone.get(ZONE_FRIGATE_CAMERAS_AWAY, [])): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=cam_options if cam_options else [],
+                    multiple=True,
+                    custom_value=True,
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                )
+            ),
+        })
+        return self.async_show_form(
+            step_id="zone_devices_away",
             data_schema=schema,
             description_placeholders={"zone_name": self._current_zone.get(ZONE_NAME, "")},
         )
@@ -928,10 +1022,20 @@ class AlarmGuardianOptionsFlow(config_entries.OptionsFlow):
             merged = {**self._entry.data, **self._entry.options, CONF_ZONES: self._zones}
             return self.async_create_entry(title="", data=merged)
 
+        all_interior = (
+            self._current_zone.get(ZONE_INTERIOR_SENSORS_BOTH, [])
+            + self._current_zone.get(ZONE_INTERIOR_SENSORS_AWAY, [])
+            + self._current_zone.get(ZONE_INTERIOR_SENSORS_HOME, [])
+        )
+        all_cameras = (
+            self._current_zone.get(ZONE_FRIGATE_CAMERAS_BOTH, [])
+            + self._current_zone.get(ZONE_FRIGATE_CAMERAS_AWAY, [])
+            + self._current_zone.get(ZONE_FRIGATE_CAMERAS_HOME, [])
+        )
         suggested = _suggest_profile(
             self._current_zone.get(ZONE_PERIMETER_SENSORS, []),
-            self._current_zone.get(ZONE_INTERIOR_SENSORS, []),
-            self._current_zone.get(ZONE_FRIGATE_CAMERAS, []),
+            all_interior,
+            all_cameras,
         )
         current_profile = self._current_zone.get(ZONE_PROFILE, suggested)
         current_modes = self._current_zone.get(ZONE_ARMED_MODES, ["armed_away"])

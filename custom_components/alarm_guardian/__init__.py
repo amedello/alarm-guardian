@@ -245,10 +245,7 @@ async def _setup_sensor_listeners(
 
         current_mode = state_machine.state.value
         if not zone.is_active_in_mode(current_mode):
-            # Controlla se è perimetrale: i perimetrali scattano anche in armed_home
-            is_perimeter = entity_id in zone.perimeter_sensors
-            if not (is_perimeter and current_mode == "armed_home"):
-                return
+            return
 
         # Valida transizione stato
         old_val = old_state.state if old_state else None

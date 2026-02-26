@@ -223,8 +223,11 @@ class AlarmGuardianCoordinator(DataUpdateCoordinator):
         if zones:
             sensors = []
             for z in zones:
-                sensors.extend(z.get("zone_interior_sensors", []))
-            return sensors
+                # Nuove chiavi per modalità + fallback legacy
+                sensors.extend(z.get("zone_interior_sensors_both", z.get("zone_interior_sensors", [])))
+                sensors.extend(z.get("zone_interior_sensors_away", []))
+                sensors.extend(z.get("zone_interior_sensors_home", []))
+            return list(dict.fromkeys(sensors))  # deduplica mantenendo ordine
         # Fallback legacy
         sensors = self.config_entry.data.get("interior_sensors", [])
         if not sensors:

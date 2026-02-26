@@ -83,12 +83,12 @@
         }
       },
       "zone_devices": {
-        "title": "Zone {zone_name} — Capteurs",
-        "description": "Capteurs détectés automatiquement depuis les pièces sélectionnées. Corrigez la classification si nécessaire.",
+        "title": "Capteurs zone (home + away)",
+        "description": "Capteurs actifs dans les deux modes : {zone_name}",
         "data": {
-          "perimeter_sensors": "Capteurs périmètre (portes/fenêtres)",
-          "interior_sensors": "Capteurs intérieurs (PIR, radar)",
-          "frigate_cameras": "Caméras Frigate"
+          "perimeter_sensors": "Capteurs périmètre (toujours actifs)",
+          "interior_sensors_both": "Capteurs intérieurs (home + away)",
+          "frigate_cameras_both": "Caméras Frigate (home + away)"
         }
       },
       "zone_profile": {
@@ -104,6 +104,14 @@
         "description": "Zones configurées: {zones_configured}\n\nVoulez-vous ajouter une autre zone?",
         "data": {
           "add_another": "Ajouter une autre zone"
+        }
+      },
+      "zone_devices_away": {
+        "title": "Capteurs hors domicile uniquement",
+        "description": "Capteurs actifs UNIQUEMENT en away : {zone_name}",
+        "data": {
+          "interior_sensors_away": "Capteurs intérieurs (away uniquement)",
+          "frigate_cameras_away": "Caméras Frigate (away uniquement)"
         }
       }
     },
@@ -182,11 +190,12 @@
         }
       },
       "zone_devices": {
-        "title": "Zone {zone_name} — Capteurs",
+        "title": "Capteurs zone (home + away)",
+        "description": "Capteurs actifs dans les deux modes : {zone_name}",
         "data": {
-          "perimeter_sensors": "Capteurs périmètre (portes/fenêtres)",
-          "interior_sensors": "Capteurs intérieurs (PIR, radar)",
-          "frigate_cameras": "Caméras Frigate"
+          "perimeter_sensors": "Capteurs périmètre (toujours actifs)",
+          "interior_sensors_both": "Capteurs intérieurs (home + away)",
+          "frigate_cameras_both": "Caméras Frigate (home + away)"
         }
       },
       "zone_profile": {
@@ -209,6 +218,14 @@
           "voip_rest_method": "Méthode HTTP",
           "voip_rest_headers": "En-têtes (JSON)",
           "voip_rest_body": "Corps (JSON)"
+        }
+      },
+      "zone_devices_away": {
+        "title": "Capteurs hors domicile uniquement",
+        "description": "Capteurs actifs UNIQUEMENT en away : {zone_name}",
+        "data": {
+          "interior_sensors_away": "Capteurs intérieurs (away uniquement)",
+          "frigate_cameras_away": "Caméras Frigate (away uniquement)"
         }
       }
     }
