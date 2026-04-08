@@ -1,0 +1,107 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Alarm Guardian - Pannello Allarme",
+        "description": "Seleziona il pannello di controllo allarme (alarm_control_panel)",
+        "data": {
+          "alarm_panel_entity": "Entità pannello allarme"
+        }
+      },
+      "perimeter": {
+        "title": "Sensori Perimetrali",
+        "description": "Seleziona porte e finestre (monitorati sia in armed_away che in armed_home)",
+        "data": {
+          "perimeter_sensors": "Sensori perimetrali (porte/finestre)"
+        }
+      },
+      "interior": {
+        "title": "Sensori Interni",
+        "description": "Seleziona i sensori di movimento (monitorati SOLO in armed_away)",
+        "data": {
+          "interior_sensors": "Sensori di movimento interni"
+        }
+      },
+      "frigate": {
+        "title": "Telecamere Frigate",
+        "description": "Configura l'integrazione Frigate per il rilevamento persone",
+        "data": {
+          "frigate_cameras": "Telecamere monitorate",
+          "frigate_host": "Host Frigate",
+          "frigate_port": "Porta Frigate"
+        }
+      },
+      "frigate_switches": {
+        "title": "Switch di controllo Frigate",
+        "description": "Seleziona gli switch per abilitare/disabilitare il rilevamento Frigate (si attivano automaticamente con lo stato dell'allarme)",
+        "data": {
+          "frigate_motion_switches": "Switch rilevamento movimento",
+          "frigate_detect_switches": "Switch rilevamento oggetti"
+        }
+      },
+      "telegram": {
+        "title": "Configurazione Telegram",
+        "description": "{info}",
+        "data": {
+          "telegram_config_entry": "Bot Telegram",
+          "telegram_target": "Chat ID destinatario",
+          "telegram_thread_id": "Thread ID (opzionale, per gruppi con topic)"
+        }
+      },
+      "telegram_target": {
+        "title": "Destinatario Telegram",
+        "description": "{info}",
+        "data": {
+          "telegram_target": "Chat ID destinatario",
+          "telegram_thread_id": "Thread ID (opzionale, per gruppi con topic)"
+        }
+      },
+      "notifications": {
+        "title": "Notifiche VoIP",
+        "description": "Configura le chiamate VoIP di escalation",
+        "data": {
+          "voip_primary": "Numero VoIP primario",
+          "voip_secondary": "Numero VoIP secondario (opzionale)",
+          "shell_command_voip": "Shell command VoIP"
+        }
+      },
+      "timing": {
+        "title": "Parametri di timing",
+        "description": "Configura i tempi e le soglie dell'allarme",
+        "data": {
+          "arming_delay": "Ritardo armamento (secondi)",
+          "correlation_window": "Finestra di correlazione (secondi)",
+          "voip_call_delay": "Ritardo tra chiamate VoIP (secondi)",
+          "battery_threshold": "Soglia batteria scarica (%)",
+          "jamming_min_devices": "Rilevamento jamming - dispositivi minimi",
+          "jamming_min_percent": "Rilevamento jamming - percentuale minima (%)"
+        }
+      }
+    },
+    "error": {
+      "no_alarm_panel": "Nessun pannello allarme trovato. Configura prima un'entità alarm_control_panel compatibile.",
+      "no_sensors": "È necessario selezionare almeno un sensore."
+    },
+    "abort": {
+      "no_alarm_panel": "Nessun pannello allarme compatibile trovato",
+      "already_configured": "Alarm Guardian è già configurato"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opzioni Alarm Guardian",
+        "description": "Modifica sensori, timing e parametri di escalation",
+        "data": {
+          "perimeter_sensors": "Sensori perimetrali (porte/finestre)",
+          "interior_sensors": "Sensori di movimento interni",
+          "correlation_window": "Finestra di correlazione (secondi)",
+          "voip_call_delay": "Ritardo tra chiamate VoIP (secondi)",
+          "battery_threshold": "Soglia batteria scarica (%)",
+          "telegram_target": "Chat ID destinatario Telegram",
+          "telegram_thread_id": "Thread ID Telegram (opzionale)"
+        }
+      }
+    }
+  }
+}
